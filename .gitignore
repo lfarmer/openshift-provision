@@ -1,0 +1,4 @@
+openshift-ansible
+.idea
+.vagrant
+single.retry

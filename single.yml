@@ -1,0 +1,8 @@
+---
+- hosts: master
+  remote_user: vagrant
+  become: true
+  become_user: root
+
+  roles:
+    - hostpreparation
