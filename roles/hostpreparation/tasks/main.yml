@@ -1,56 +1,21 @@
 ---
 
 - name: Install required wget utility packages
-  yum:
-    name: wget
-    state: present
-
-- name: Install required git utility packages
-  yum:
-    name: git
-    state: present
-
-- name: Install required net-tools utility packages
-  yum:
-    name: net-tools
-    state: present
-
-- name: Install required bind-utils utility packages
-  yum:
-    name: bind-utils
-    state: present
-
-- name: Install required iptables-services utility packages
-  yum:
-    name: iptables-services
-    state: present
-
-- name: Install required bridge-utils utility packages
-  yum:
-    name: bridge-utils
-    state: present
-
-- name: Install required bash-completion utility packages
-  yum:
-    name: bash-completion
-    state: present
-
-- name: reload systemd
-  shell: systemctl daemon-reload
+  yum: name={{ item }} state=present
+  with_items:
+    - wget
+    - git
+    - net-tools
+    - bind-utils
+    - iptables-services
+    - bridge-utils
+    - bash-completion
+  notify:
+    - reload systemd
 
 - name: Install epel repo
   yum:
     name: epel-release
-    state: present
-
-- name: Install the packages for Ansible # yum -y --enablerepo=epel install ansible pyOpenSSL
-  yum:
-    name: pyOpenSSL
-    state: present
-
-- name: Install Ansible # yum -y --enablerepo=epel install ansible pyOpenSSL
-  yum:
-    name: ansible
     state: present
 
 - name: Add docker repository
@@ -77,15 +42,8 @@
 
 - name: Set up docker service configuration
   template: src=docker.sysconfig.conf.j2 dest=/etc/sysconfig/docker owner=root group=root mode=0644
-
-- name: reload systemctl daemon
-  shell: systemctl daemon-reload
+  notify:
+    - reload systemd
 
 - name: restart docker
   service: name=docker state=restarted
-
-- name: Clone opensift ansible project
-  shell: /usr/bin/git clone https://github.com/openshift/openshift-ansible
-  args:
-    chdir: /home/vagrant
-    creates: /home/vagrant/openshift-ansible

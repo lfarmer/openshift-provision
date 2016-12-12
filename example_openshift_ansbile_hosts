@@ -1,0 +1,39 @@
+# Create an OSEv3 group that contains the masters and nodes groups
+[OSEv3:children]
+masters
+nodes
+
+# Set variables common for all OSEv3 hosts
+[OSEv3:vars]
+# SSH user, this user should allow ssh based auth without requiring a password
+ansible_ssh_user=vagrant
+ansible_become=true
+
+deployment_type=origin
+
+# htpasswd auth
+openshift_master_identity_providers=[{'name': 'htpasswd_auth', 'login': 'true', 'challenge': 'true', 'kind': 'HTPasswdPasswordIdentityProvider', 'filename': '/etc/origin/master/htpasswd'}]
+# Defining developer:developer and system:admin user
+openshift_master_htpasswd_users={'developer':'$apr1$lSJnOt2Y$P229bevm4QijXj0o4GVul1', 'system':'$apr1$FzSiO74w$uU0lcb3vrgZ4zn2/dbpue.'}
+# or
+#openshift_master_htpasswd_file=<path to local pre-generated htpasswd file>
+
+# Allow all auth
+#openshift_master_identity_providers=[{'name': 'allow_all', 'login': 'true', 'challenge': 'true', 'kind': 'AllowAllPasswordIdentityProvider'}]
+
+# Global Proxy Configuration
+# These options configure HTTP_PROXY, HTTPS_PROXY, and NOPROXY environment
+# variables for docker and master services.
+#openshift_http_proxy=http://USER:PASSWORD@IPADDR:PORT
+#openshift_https_proxy=https://USER:PASSWORD@IPADDR:PORT
+#openshift_no_proxy='.hosts.example.com,some-host.com'
+
+openshift_release=1.3.1
+
+# host group for masters
+[masters]
+192.168.33.10 openshift_public_ip=192.168.33.10 openshift_public_hostname=192.168.33.10 containerized=true
+
+# host group for nodes, includes region info
+[nodes]
+192.168.33.10 openshift_schedulable=true openshift_node_labels="{'region': 'infra', 'zone': 'default'}"
